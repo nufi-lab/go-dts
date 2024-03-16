@@ -15,7 +15,7 @@ func ConnectDatabase() {
 		panic(err)
 	}
 
-	database.AutoMigrate(&Order{})
+	database.AutoMigrate(&Order{}, &Item{})
 
 	DB = database
 
