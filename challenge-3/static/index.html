@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Update</title>
+    <script>
+        function fetchStatus() {
+            fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('water').innerText = data.water;
+                document.getElementById('water_status').innerText = data.water_status;
+                document.getElementById('wind').innerText = data.wind;
+                document.getElementById('wind_status').innerText = data.wind_status;
+            });
+        }
+
+        // Fetch status every 2 seconds
+        setInterval(fetchStatus, 2000);
+    </script>
+</head>
+<body onload="fetchStatus()">
+    <h1>Status Update</h1>
+    <div>
+        <h3>Water Status:</h3>
+        <p id="water"></p>
+        <p id="water_status"></p>
+    </div>
+    <div>
+        <h3>Wind Status:</h3>
+        <p id="wind"></p>
+        <p id="wind_status"></p>
+    </div>
+</body>
+</html>
