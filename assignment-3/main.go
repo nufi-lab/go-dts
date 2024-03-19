@@ -23,14 +23,19 @@ func main() {
 	r.GET("/logout", authcontroller.Logout)
 
 	// Define API route group with middleware
-	api := r.Group("/api")
-	api.Use(middlewares.JWTMiddleware())
+	admin := r.Group("/admin")
+	admin.Use(middlewares.JWTMiddleware(), middlewares.AuthorizeRoleMiddleware("admin"))
 
 	// Define routes within the API group
-	api.GET("/orders", ordercontroller.Index)
-	api.POST("/orders", ordercontroller.Create)
-	api.PUT("/orders/:id", ordercontroller.Update)
-	api.DELETE("/orders/:id", ordercontroller.Delete)
+	admin.GET("/orders", ordercontroller.Index)
+	admin.POST("/orders", ordercontroller.Create)
+	admin.PUT("/orders/:id", ordercontroller.Update)
+	admin.DELETE("/orders/:id", ordercontroller.Delete)
+
+	customer := r.Group("/customer")
+	customer.Use(middlewares.JWTMiddleware(), middlewares.AuthorizeRoleMiddleware("customer"))
+
+	customer.GET("/orders", ordercontroller.Index)
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 

@@ -9,6 +9,36 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Middleware untuk mengotorisasi pengguna berdasarkan peran (role)
+// Middleware for authorizing users based on role
+func AuthorizeRoleMiddleware(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get JWT claim from context
+		claims, _ := c.Get("claims")
+		claimsData, _ := claims.(*config.JWTClaim)
+
+		// Check if user's role is among the allowed roles
+		authorized := false
+		for _, role := range roles {
+			if claimsData.Role == role {
+				authorized = true
+				break
+			}
+		}
+
+		// If not authorized, return Unauthorized
+		if !authorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized, role not allowed"})
+			c.Abort()
+			return
+		}
+
+		// If authorized, proceed to the next handler
+		c.Next()
+	}
+}
+
+// Middleware JWT yang telah dimodifikasi
 func JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := c.Cookie("token")
@@ -46,6 +76,9 @@ func JWTMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		// Set klaim JWT di konteks untuk digunakan oleh middleware lainnya
+		c.Set("claims", claims)
 
 		c.Next()
 	}

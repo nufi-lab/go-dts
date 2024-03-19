@@ -44,6 +44,7 @@ func Login(c *gin.Context) {
 	expTime := time.Now().Add(time.Minute * 1)
 	claims := &config.JWTClaim{
 		Username: user.Username,
+		Role:     user.Role, // Include the role in JWT claims
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "go-jwt-mux",
 			ExpiresAt: jwt.NewNumericDate(expTime),
@@ -58,7 +59,14 @@ func Login(c *gin.Context) {
 	}
 
 	// Set token in cookie
-	c.SetCookie("token", tokenString, int(expTime.Sub(time.Now()).Seconds()), "/", "", false, true)
+	// Calculate the duration until the expiration time
+	expirationDuration := time.Until(expTime)
+
+	// Convert the duration to seconds
+	expirationSeconds := int(expirationDuration.Seconds())
+
+	// Set the cookie with expiration time
+	c.SetCookie("token", tokenString, expirationSeconds, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
 }

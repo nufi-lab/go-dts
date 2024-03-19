@@ -9,7 +9,7 @@ type User struct {
 	FullName string `gorm:"varchar(300)" json:"fullName"`
 	Username string `gorm:"varchar(300)" json:"username"`
 	Password string `gorm:"varchar(300)" json:"password"`
-	// Role     string `gorm:"varchar(50)" json:"role"`
+	Role     string `gorm:"varchar(50)" json:"role"`
 }
 
 // Item represents an item in the items table
