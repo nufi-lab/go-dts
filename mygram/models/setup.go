@@ -8,14 +8,14 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() {
-	dsn := "user=postgres password=nfitri dbname=orders_by sslmode=disable"
+	dsn := "user=postgres password=nfitri dbname=mygram sslmode=disable"
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		panic(err)
 	}
 
-	database.AutoMigrate(&Order{}, &Item{}, &User{})
+	database.AutoMigrate()
 
 	DB = database
 
