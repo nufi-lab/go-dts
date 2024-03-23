@@ -6,7 +6,9 @@ import (
 	"mylib/middlewares"
 	"mylib/models"
 	"mylib/services"
+	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,23 +23,31 @@ func NewUserController(userService *services.UserService) *UserController {
 	}
 }
 
+// func (c *UserController) Routes(r *gin.RouterGroup) {
+// 	addRoutes := func(routes func(group *gin.RouterGroup)) {
+// 		routes(r)
+// 	}
+
+// 	addRoutes(func(group *gin.RouterGroup) {
+// 		group.POST("/register", c.Register)
+// 		group.POST("/login", c.Login)
+// 	})
+
+// 	userRouter := r.Group("/user")
+// 	userRouter.Use(middlewares.Authenticate, middlewares.AddAuthorizationHeader())
+// 	userRouter.PUT("/:id", middlewares.Authorization(), c.UpdateUser)
+// 	userRouter.DELETE("/:id", middlewares.Authorization(), c.DeleteUser)
+
+// }
+
 func (c *UserController) Routes(r *gin.RouterGroup) {
-	// Fungsi helper untuk menambahkan rute ke grup
-	addRoutes := func(routes func(group *gin.RouterGroup)) {
-		routes(r)
-	}
+	// Routes for registration and login
+	r.POST("/register", c.Register)
+	r.POST("/login", c.Login)
 
-	// Gunakan fungsi helper untuk menambahkan rute-rute yang diinginkan
-	addRoutes(func(group *gin.RouterGroup) {
-		group.POST("/register", c.Register)
-		group.POST("/login", c.Login)
-	})
-
-	userRouter := r.Group("/user")
-	userRouter.Use(middlewares.Authentication(), middlewares.AddAuthorizationHeader())
-	userRouter.PUT("/:id", middlewares.Authorization(), c.UpdateUser)
-	userRouter.DELETE("/:id", middlewares.Authorization(), c.DeleteUser)
-
+	// Routes for authenticated actions
+	r.PUT("/user/:id", middlewares.Authenticate(), middlewares.AddAuthorizationHeader(), c.UpdateUser)
+	r.DELETE("/user/:id", middlewares.Authenticate(), middlewares.AddAuthorizationHeader(), c.DeleteUser)
 }
 
 func (c *UserController) Register(ctx *gin.Context) {
@@ -73,8 +83,11 @@ func (c *UserController) Register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"data": user,
+	ctx.JSON(http.StatusCreated, gin.H{
+		"user_id":   user.ID,
+		"email":     user.Email,
+		"username":  user.Username,
+		"full_name": user.FullName,
 	})
 }
 
@@ -101,8 +114,13 @@ func (c *UserController) Login(ctx *gin.Context) {
 		})
 		return
 	}
+	expTime := time.Now().Add(time.Hour)
 
-	ctx.Header("Authorization", "Bearer "+user.AccessToken)
+	// Set header HTTP untuk menyimpan token
+	ctx.Header("Authorization", "Bearer "+user.Token)
+	ctx.Header("Expires", expTime.Format(time.RFC1123))
+
+	// ctx.Header("Authorization", "Bearer "+user.Token)
 
 	ctx.JSON(200, gin.H{
 		"data": user,

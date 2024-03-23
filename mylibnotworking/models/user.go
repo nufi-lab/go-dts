@@ -1,11 +1,15 @@
 package models
 
 import (
+	"fmt"
+	"mylib/helpers"
 	"time"
 
+	"github.com/asaskevich/govalidator"
 	"gorm.io/gorm"
 )
 
+// User struct represents the User table.
 type User struct {
 	gorm.Model
 	ID        uint      `json:"user_id" gorm:"primaryKey"`
@@ -43,4 +47,43 @@ type UpdateUserRequest struct {
 	Username string `json:"username" valid:"required"`
 	Email    string `json:"email" valid:"required,email"`
 	Password string `json:"password" valid:"required"`
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+
+	if !govalidator.IsEmail(u.Email) {
+		return fmt.Errorf("invalid email format")
+	}
+
+	hashedPassword, err := helpers.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+
+	u.Password = hashedPassword
+
+	if u.RoleID == 0 {
+		u.RoleID = 2 // Assuming 1 is the default role ID
+	}
+
+	return nil
+}
+
+func (u User) BeforeUpdate(tx *gorm.DB) (err error) {
+	_, errCreate := govalidator.ValidateStruct(u)
+
+	if errCreate != nil {
+		err = errCreate
+		return
+	}
+
+	hashedPassword, err := helpers.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+
+	u.Password = hashedPassword
+
+	err = nil
+	return
 }

@@ -59,13 +59,12 @@ func (s *UserService) Login(request models.LoginRequest) (*models.LoginResponse,
 		return nil, errors.New("invalid username/password")
 	}
 
-	// Generate JWT token
-	token, _ := helpers.GenerateToken(user.ID, user.Username)
+	token, _ := helpers.GenerateToken(user.Username)
 
 	return &models.LoginResponse{
-		AccessToken: token,
-		Username:    user.Username,
-		Role:        user.Role.Name,
+		Token:    token,
+		Username: user.Username,
+		Role:     user.Role.Name,
 	}, nil
 }
 

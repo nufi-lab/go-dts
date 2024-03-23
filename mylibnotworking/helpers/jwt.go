@@ -3,36 +3,32 @@ package helpers
 import (
 	"errors"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var JWT_KEY = []byte("jfidjeihoahudhuehkdsfsa")
+var jwtKey = []byte("jfidjeihoahudhuehkdsfsa")
 
-type JWTClaim struct {
-	ID       uint   `json:"id"`
+type Claims struct {
 	Username string `json:"username"`
-	Role     string
+	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(id uint, username string) (string, error) {
-	claims := jwt.MapClaims{
-		"id":       id,
-		"username": username,
-		"exp":      time.Now().Add(time.Hour * 1).Unix(), // Token berlaku selama 24 jam
+func GenerateToken(username string) (string, error) {
+	// Membuat claims JWT dengan menyertakan username pengguna.
+	claims := &Claims{
+		Username:         username,
+		RegisteredClaims: jwt.RegisteredClaims{},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	signedToken, err := token.SignedString(JWT_KEY)
+	// Menandatangani token dengan secret key.
+	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
 		return "", err
 	}
-
-	return signedToken, nil
+	return tokenString, nil
 }
 
 // func VerifyToken(ctx *gin.Context) (jwt.MapClaims, error) {
@@ -84,7 +80,7 @@ func VerifyToken(ctx *gin.Context) (jwt.MapClaims, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("invalid token")
 			}
-			return JWT_KEY, nil
+			return jwtKey, nil
 		})
 
 		if err != nil || !token.Valid {
