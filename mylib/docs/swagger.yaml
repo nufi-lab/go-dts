@@ -1,0 +1,507 @@
+basePath: /
+definitions:
+  models.AuthorResponse:
+    properties:
+      biography:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.BookResponse:
+    properties:
+      author:
+        type: string
+      available_copies:
+        type: integer
+      description:
+        type: string
+      genre:
+        type: string
+      id:
+        type: integer
+      publication_year:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.BorrowRequest:
+    properties:
+      book_id:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - book_id
+    type: object
+  models.GenreResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.GetListAuthorRequest:
+    properties:
+      biography:
+        type: string
+      name:
+        type: string
+    type: object
+  models.GetListBookRequest:
+    properties:
+      author_id:
+        type: integer
+      available_copies:
+        type: integer
+      description:
+        type: string
+      genre_id:
+        type: integer
+      publication_year:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.GetListGenreRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      role:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Documentation for mylib.
+  title: Swagger My Lib
+  version: "1.0"
+paths:
+  /author/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get author by id
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: get author by id
+      tags:
+      - Author
+  /authors:
+    get:
+      consumes:
+      - application/json
+      description: get all authors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: get all authors
+      tags:
+      - Author
+  /book/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get book by id
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get book by id
+      tags:
+      - Book
+  /books:
+    get:
+      consumes:
+      - application/json
+      description: Get all books
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get all books
+      tags:
+      - Book
+  /borrow-book:
+    post:
+      consumes:
+      - application/json
+      description: Borrow a book by providing book ID. The user must be authenticated.
+      parameters:
+      - description: Borrow request details
+        in: body
+        name: borrowRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.BorrowRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Book borrowed successfully
+        "400":
+          description: Bad Request
+      summary: Borrow a book
+      tags:
+      - Book
+  /genre/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get genre by id
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: get genre by id
+      tags:
+      - Genre
+  /genres:
+    get:
+      consumes:
+      - application/json
+      description: get all genres
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: get all genres
+      tags:
+      - Genre
+  /librarian/author:
+    post:
+      consumes:
+      - application/json
+      description: create a new author with the provided details
+      parameters:
+      - description: Author details
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetListAuthorRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.AuthorResponse'
+        "400":
+          description: Bad Request
+      summary: create a new author
+      tags:
+      - Author
+  /librarian/author/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing author
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Author deleted successfully
+        "400":
+          description: Invalid input data
+      summary: Delete author
+      tags:
+      - Author
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing author
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Author details
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetListAuthorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthorResponse'
+        "400":
+          description: Bad Request
+      summary: Update author details
+      tags:
+      - Author
+  /librarian/book:
+    post:
+      consumes:
+      - application/json
+      description: Create a new book with the provided details
+      parameters:
+      - description: Book details
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetListBookRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BookResponse'
+        "400":
+          description: Bad Request
+      summary: Create a new book
+      tags:
+      - Book
+  /librarian/book/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing book
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Book deleted successfully
+        "400":
+          description: Invalid input data
+      summary: Delete book
+      tags:
+      - Book
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing book
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Book details
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetListBookRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookResponse'
+        "400":
+          description: Bad Request
+      summary: Update book details
+      tags:
+      - Book
+  /librarian/genre:
+    post:
+      consumes:
+      - application/json
+      description: Create a new genre with the provided details
+      parameters:
+      - description: Genre details
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetListGenreRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.GenreResponse'
+        "400":
+          description: Bad Request
+      summary: Create a new genre
+      tags:
+      - Genre
+  /librarian/genre/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing genre
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Genre deleted successfully
+        "400":
+          description: Invalid input data
+      summary: Delete genre
+      tags:
+      - Genre
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing genre
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Genre details
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetListGenreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GenreResponse'
+        "400":
+          description: Bad Request
+      summary: Update genre details
+      tags:
+      - Genre
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with provided credentials and generate access
+        token
+      parameters:
+      - description: User credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+      summary: User login
+      tags:
+      - Authentication
+  /logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout the user by clearing the authentication token cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+      summary: Logout
+      tags:
+      - Authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Register a new user with the provided details.
+        If data user not found role is librarian.
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User successfully registered
+          schema:
+            $ref: '#/definitions/models.RegisterRequest'
+        "400":
+          description: Bad Request
+      summary: Register a new user
+      tags:
+      - Authentication
+swagger: "2.0"

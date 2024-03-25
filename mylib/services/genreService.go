@@ -1,8 +1,8 @@
 package services
 
 import (
-	"assignment-3/models"
-	"assignment-3/repository"
+	"mylib/models"
+	"mylib/repository"
 )
 
 type GenreService struct {

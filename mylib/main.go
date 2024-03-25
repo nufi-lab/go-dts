@@ -1,8 +1,8 @@
 package main
 
 import (
-	"assignment-3/config"
-	"assignment-3/routers"
+	"mylib/config"
+	"mylib/routers"
 )
 
 func main() {

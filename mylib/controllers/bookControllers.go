@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	"assignment-3/models"
-	"assignment-3/services"
+	"mylib/models"
+	"mylib/services"
 	"net/http"
 	"strconv"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,14 +17,22 @@ func NewBookController(BookService *services.BookService) *BookController {
 	return &BookController{BookService: BookService}
 }
 
-func (gc *BookController) GetAllBooks(c *gin.Context) {
+// GetAllBooks godoc
+// @Summary Get all books
+// @Description Get all books
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /books [get]
+func (bc *BookController) GetAllBooks(c *gin.Context) {
 	var request models.GetListBookRequest
 	if err := c.BindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	books, err := gc.BookService.GetAllBooks(request)
+	books, err := bc.BookService.GetAllBooks(request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -47,14 +54,23 @@ func (gc *BookController) GetAllBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, bookResponses)
 }
 
-func (gc *BookController) GetBookByID(c *gin.Context) {
+// GetBookById godoc
+// @Summary Get book by id
+// @Description Get book by id
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param id  path  string  true  "Book ID"
+// @Success 200
+// @Router /book/{id} [get]
+func (bc *BookController) GetBookByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Book ID"})
 		return
 	}
 
-	book, err := gc.BookService.FindBookByID(uint(id))
+	book, err := bc.BookService.FindBookByID(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 		return
@@ -73,20 +89,35 @@ func (gc *BookController) GetBookByID(c *gin.Context) {
 	c.JSON(http.StatusOK, bookResponse)
 }
 
-func (gc *BookController) CreateBook(c *gin.Context) {
+// CreateBook godoc
+// @Summary Create a new book
+// @Description Create a new book with the provided details
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param book body models.GetListBookRequest true "Book details"
+// @Success 201 {object} models.BookResponse
+// @Failure 400
+// @Router /librarian/book [post]
+func (bc *BookController) CreateBook(c *gin.Context) {
 	var book models.Book
 	if err := c.ShouldBindJSON(&book); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Validasi menggunakan GoValidator
-	if _, err := govalidator.ValidateStruct(book); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// Validate the required fields
+	if book.AuthorID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Author ID is required"})
 		return
 	}
 
-	if err := gc.BookService.CreateBook(&book); err != nil {
+	if book.GenreID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Genre ID is required"})
+		return
+	}
+
+	if err := bc.BookService.CreateBook(&book); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create Book"})
 		return
 	}
@@ -104,8 +135,19 @@ func (gc *BookController) CreateBook(c *gin.Context) {
 	c.JSON(http.StatusCreated, bookResponse)
 }
 
-func (gc *BookController) UpdateBook(c *gin.Context) {
-	var updateRequest models.GetListBookRequest
+// UpdateBook godoc
+// @Summary Update book details
+// @Description Update details of an existing book
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param id path string true "Book ID"
+// @Param book body models.GetListBookRequest true "Book details"
+// @Success 200 {object} models.BookResponse
+// @Failure 400
+// @Router /librarian/book/{id} [put]
+func (bc *BookController) UpdateBook(c *gin.Context) {
+	var updateRequest models.Book
 	if err := c.ShouldBindJSON(&updateRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -117,8 +159,18 @@ func (gc *BookController) UpdateBook(c *gin.Context) {
 		return
 	}
 
-	book := &models.Book{ID: uint(id), Title: updateRequest.Title}
-	if err := gc.BookService.UpdateBook(uint(id), book); err != nil {
+	book, err := bc.BookService.FindBookByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+		return
+	}
+
+	book.Title = updateRequest.Title
+	book.Description = updateRequest.Description
+	book.PublicationYear = updateRequest.PublicationYear
+	book.AvailableCopies = updateRequest.AvailableCopies
+
+	if err := bc.BookService.UpdateBook(uint(id), book); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update Book"})
 		return
 	}
@@ -133,17 +185,27 @@ func (gc *BookController) UpdateBook(c *gin.Context) {
 		AvailableCopies: book.AvailableCopies,
 	}
 
-	c.JSON(http.StatusCreated, bookResponse)
+	c.JSON(http.StatusOK, bookResponse)
 }
 
-func (gc *BookController) DeleteBook(c *gin.Context) {
+// DeleteBook godoc
+// @Summary Delete book
+// @Description Delete an existing book
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param id path string true "Book ID"
+// @Success 204 "Book deleted successfully"
+// @Failure 400 "Invalid input data"
+// @Router /librarian/book/{id} [delete]
+func (bc *BookController) DeleteBook(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Book ID"})
 		return
 	}
 
-	if err := gc.BookService.DeleteBook(uint(id)); err != nil {
+	if err := bc.BookService.DeleteBook(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete Book"})
 		return
 	}

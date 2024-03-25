@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"assignment-3/models"
-	"assignment-3/services"
+	"mylib/models"
+	"mylib/services"
 	"net/http"
 	"strconv"
 
@@ -18,6 +18,14 @@ func NewGenreController(genreService *services.GenreService) *GenreController {
 	return &GenreController{genreService: genreService}
 }
 
+// GetAllGenres godoc
+// @Summary get all genres
+// @Description get all genres
+// @Tags Genre
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /genres [get]
 func (gc *GenreController) GetAllGenres(c *gin.Context) {
 	var request models.GetListGenreRequest
 	if err := c.BindQuery(&request); err != nil {
@@ -42,6 +50,15 @@ func (gc *GenreController) GetAllGenres(c *gin.Context) {
 	c.JSON(http.StatusOK, genreResponses)
 }
 
+// GetGenreById godoc
+// @Summary get genre by id
+// @Description get genre by id
+// @Tags Genre
+// @Accept json
+// @Produce json
+// @Param id  path  string  true  "Genre ID"
+// @Success 200
+// @Router /genre/{id} [get]
 func (gc *GenreController) GetGenreByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -63,6 +80,16 @@ func (gc *GenreController) GetGenreByID(c *gin.Context) {
 	c.JSON(http.StatusOK, genreResponse)
 }
 
+// CreateGenre godoc
+// @Summary Create a new genre
+// @Description Create a new genre with the provided details
+// @Tags Genre
+// @Accept json
+// @Produce json
+// @Param genre body models.GetListGenreRequest true "Genre details"
+// @Success 201 {object} models.GenreResponse
+// @Failure 400
+// @Router /librarian/genre [post]
 func (gc *GenreController) CreateGenre(c *gin.Context) {
 	var genre models.Genre
 	if err := c.ShouldBindJSON(&genre); err != nil {
@@ -89,6 +116,17 @@ func (gc *GenreController) CreateGenre(c *gin.Context) {
 	c.JSON(http.StatusCreated, genreResponse)
 }
 
+// UpdateGenre godoc
+// @Summary Update genre details
+// @Description Update details of an existing genre
+// @Tags Genre
+// @Accept json
+// @Produce json
+// @Param id path string true "Genre ID"
+// @Param genre body models.GetListGenreRequest true "Genre details"
+// @Success 200 {object} models.GenreResponse
+// @Failure 400
+// @Router /librarian/genre/{id} [put]
 func (gc *GenreController) UpdateGenre(c *gin.Context) {
 	var updateRequest models.GetListGenreRequest
 	if err := c.ShouldBindJSON(&updateRequest); err != nil {
@@ -115,6 +153,16 @@ func (gc *GenreController) UpdateGenre(c *gin.Context) {
 	c.JSON(http.StatusCreated, genreResponse)
 }
 
+// DeleteGenre godoc
+// @Summary Delete genre
+// @Description Delete an existing genre
+// @Tags Genre
+// @Accept json
+// @Produce json
+// @Param id path string true "Genre ID"
+// @Success 204 "Genre deleted successfully"
+// @Failure 400 "Invalid input data"
+// @Router /librarian/genre/{id} [delete]
 func (gc *GenreController) DeleteGenre(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

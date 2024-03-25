@@ -1,8 +1,8 @@
 package services
 
 import (
-	"assignment-3/models"
-	"assignment-3/repository"
+	"mylib/models"
+	"mylib/repository"
 )
 
 type AuthorService struct {
@@ -13,22 +13,22 @@ func NewAuthorService(authorRepo *repository.AuthorRepository) *AuthorService {
 	return &AuthorService{authorRepo: authorRepo}
 }
 
-func (gs *AuthorService) GetAllAuthors(request models.GetListAuthorRequest) ([]models.Author, error) {
-	return gs.authorRepo.GetAllAuthors()
+func (as *AuthorService) GetAllAuthors(request models.GetListAuthorRequest) ([]models.Author, error) {
+	return as.authorRepo.GetAllAuthors()
 }
 
-func (gs *AuthorService) FindAuthorByID(id uint) (*models.Author, error) {
-	return gs.authorRepo.FindAuthorByID(id)
+func (as *AuthorService) FindAuthorByID(id uint) (*models.Author, error) {
+	return as.authorRepo.FindAuthorByID(id)
 }
 
-func (gs *AuthorService) CreateAuthor(Author *models.Author) error {
-	return gs.authorRepo.CreateAuthor(Author)
+func (as *AuthorService) CreateAuthor(author *models.Author) error {
+	return as.authorRepo.CreateAuthor(author)
 }
 
-func (gs *AuthorService) UpdateAuthor(id uint, Author *models.Author) error {
-	return gs.authorRepo.UpdateAuthor(id, Author)
+func (as *AuthorService) UpdateAuthor(id uint, author *models.Author) error {
+	return as.authorRepo.UpdateAuthor(id, author)
 }
 
-func (gs *AuthorService) DeleteAuthor(id uint) error {
-	return gs.authorRepo.DeleteAuthor(id)
+func (as *AuthorService) DeleteAuthor(id uint) error {
+	return as.authorRepo.DeleteAuthor(id)
 }

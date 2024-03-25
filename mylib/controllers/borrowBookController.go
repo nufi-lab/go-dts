@@ -1,27 +1,40 @@
-package borrowbookcontroller
+package controllers
 
 import (
-	"assignment-3/config"
-	"assignment-3/models"
+	"mylib/config"
+	"mylib/middlewares"
+	"mylib/models"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+// BorrowBook godoc
+// @Summary Borrow a book
+// @Description Borrow a book by providing book ID. The user must be authenticated.
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param borrowRequest body models.BorrowRequest true "Borrow request details"
+// @Success 201 "Book borrowed successfully"
+// @Failure 400
+// @Router /borrow-book [post]
 func BorrowBook(c *gin.Context) {
-	var borrowRequest struct {
-		BookID uint `json:"book_id" binding:"required"`
-		UserID uint `json:"user_id" binding:"required"`
+	userID, err := middlewares.VerifyToken(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
 	}
 
+	var borrowRequest models.BorrowRequest
 	if err := c.BindJSON(&borrowRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if borrowRequest.BookID == 0 || borrowRequest.UserID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Book ID and User ID are required"})
+	if borrowRequest.BookID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Book ID is required"})
 		return
 	}
 
@@ -30,13 +43,13 @@ func BorrowBook(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 		return
 	}
+
 	if book.AvailableCopies == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Book is not available for borrowing"})
 		return
 	}
 
 	borrowedDate := time.Now()
-
 	returnDate := borrowedDate.AddDate(0, 0, 7)
 
 	book.AvailableCopies--
@@ -47,7 +60,7 @@ func BorrowBook(c *gin.Context) {
 
 	borrowedBook := models.BorrowedBook{
 		BookID:       book.ID,
-		UserID:       borrowRequest.UserID,
+		UserID:       userID, // Menggunakan userID dari token JWT
 		BorrowedDate: borrowedDate,
 		ReturnDate:   returnDate,
 	}

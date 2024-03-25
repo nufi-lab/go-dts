@@ -1,8 +1,8 @@
 package helper
 
 import (
-	"assignment-3/config"
-	"assignment-3/models"
+	"mylib/config"
+	"mylib/models"
 )
 
 func IsEmailExists(email string) (bool, error) {

@@ -7,7 +7,7 @@ import (
 type Book struct {
 	gorm.Model
 	ID              uint   `json:"book_id" gorm:"primaryKey"`
-	Title           string `json:"tittle" gorm:"not null" valid:"required"`
+	Title           string `json:"title" gorm:"not null" valid:"required"`
 	AuthorID        uint   `json:"author_id" gorm:"not null" valid:"required"`
 	GenreID         uint   `json:"genre_id" gorm:"not null" valid:"required"`
 	Description     string `json:"description" gorm:"not null" valid:"required"`
@@ -18,7 +18,7 @@ type Book struct {
 }
 
 type GetListBookRequest struct {
-	Title           string `json:"tittle"`
+	Title           string `json:"title"`
 	AuthorID        uint   `json:"author_id"`
 	GenreID         uint   `json:"genre_id"`
 	Description     string `json:"description"`
@@ -28,7 +28,7 @@ type GetListBookRequest struct {
 
 type BookResponse struct {
 	ID              uint   `json:"id" gorm:"primaryKey"`
-	Title           string `json:"tittle"`
+	Title           string `json:"title"`
 	Author          string `json:"author"`
 	Genre           string `json:"genre"`
 	Description     string `json:"description"`

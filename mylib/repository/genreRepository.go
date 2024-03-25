@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"assignment-3/models"
+	"mylib/models"
 
 	"gorm.io/gorm"
 )
